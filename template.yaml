@@ -8,20 +8,20 @@ Globals:
     Timeout: 60
 
 Resources:
-  IotCoreToDynamoDbFunction:
+  IoTCoreToDynamoDbFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: IoTCoreToDynamoDb
-      CodeUri: .
-      Handler: app.lambdaHandler #Consider revising this later
+      CodeUri: dist/
+      Handler: app.lambdaHandler
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref NimTrack
       Events:
-        IotCoreToDynamoDb:
+        IoTCoreToDynamoDb:
           Type: IoTRule
           Properties:
-            Sql: "SELECT id, name, lat, lng, battery_level FROM 'iot/test'" #Consider revising this topic name later
+            Sql: "SELECT * FROM 'esp32/josiah1'" #Consider revising this topic name later
             AwsIotSqlVersion: '2016-03-23'
 
   NimTrack:
@@ -34,16 +34,16 @@ Resources:
           AttributeType: "S"
         - AttributeName: "data"
           AttributeType: "L"
-          AttributeDefinitions:
-            - AttributeName: "lat_lng"
-              AttributeType: "L"
-              AttributeDefinitions:
-                - AttributeName: "lat"
-                  AttributeType: "N"
-                - AttributeName: "lng"
-                  AttributeType: "N"
-            - AttributeName: "battery_level"
-              AttributeType: "N"
+          # AttributeDefinitions:
+          #   - AttributeName: "lat_lng"
+          #     AttributeType: "L"
+          #     AttributeDefinitions:
+          #       - AttributeName: "lat"
+          #         AttributeType: "N"
+          #       - AttributeName: "lng"
+          #         AttributeType: "N"
+          #   - AttributeName: "battery_level"
+          #     AttributeType: "N"
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
