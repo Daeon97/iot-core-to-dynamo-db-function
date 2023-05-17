@@ -21,7 +21,7 @@ Resources:
         IoTCoreToDynamoDb:
           Type: IoTRule
           Properties:
-            Sql: "SELECT * FROM 'esp32/josiah1'" #Consider revising this topic name later
+            Sql: "SELECT * FROM 'esp32/josiah1'"
             AwsIotSqlVersion: '2016-03-23'
 
   NimTrack:
