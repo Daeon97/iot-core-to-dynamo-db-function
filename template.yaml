@@ -27,23 +27,13 @@ Resources:
   NimTrack:
     Type: AWS::DynamoDB::Table
     Properties:
-      AttributeDefinitions: #Consider revising these attribute definitions
+      AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "N"
         - AttributeName: "name"
           AttributeType: "S"
         - AttributeName: "data"
           AttributeType: "L"
-          # AttributeDefinitions:
-          #   - AttributeName: "lat_lng"
-          #     AttributeType: "L"
-          #     AttributeDefinitions:
-          #       - AttributeName: "lat"
-          #         AttributeType: "N"
-          #       - AttributeName: "lng"
-          #         AttributeType: "N"
-          #   - AttributeName: "battery_level"
-          #     AttributeType: "N"
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"

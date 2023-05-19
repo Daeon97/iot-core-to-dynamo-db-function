@@ -1,7 +1,9 @@
 import { IoTHandler } from 'aws-lambda';
 import { IoTCoreDelegate } from './delegates/iot-core-delegate';
 
-export const lambdaHandler: IoTHandler = (event) => {
+export const lambdaHandler: IoTHandler = async (event) => {
+    console.log("lambdaHandler triggered");
+
     const iotCoreDelegate = new IoTCoreDelegate();
-    iotCoreDelegate.processMessages(event);
+    await iotCoreDelegate.processMessages(event);
 };
