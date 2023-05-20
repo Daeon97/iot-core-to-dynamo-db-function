@@ -12,7 +12,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: IoTCoreToDynamoDb
-      CodeUri: dist/
+      CodeUri: .
       Handler: app.lambdaHandler
       Policies:
         - DynamoDBCrudPolicy:
@@ -23,6 +23,16 @@ Resources:
           Properties:
             Sql: "SELECT * FROM 'esp32/josiah1'"
             AwsIotSqlVersion: '2016-03-23'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+        External:
+          - "aws-sdk"
 
   NimTrack:
     Type: AWS::DynamoDB::Table
@@ -37,4 +47,8 @@ Resources:
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
+        - AttributeName: "name"
+          KeyType: "RANGE"
+        - AttributeName: "data"
+          KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"

@@ -79,6 +79,14 @@ export class DynamoDBDelegate {
                 {
                     AttributeName: "id",
                     KeyType: "HASH"
+                },
+                {
+                    AttributeName: "name",
+                    KeyType: "RANGE"
+                },
+                {
+                    AttributeName: "data",
+                    KeyType: "RANGE"
                 }
             ]
         }).promise();
