@@ -6,6 +6,8 @@ Globals:
   Function:
     Runtime: nodejs16.x
     Timeout: 60
+    Layers:
+      - !Ref GeohashingLayer
 
 Resources:
   IoTCoreToDynamoDbFunction:
