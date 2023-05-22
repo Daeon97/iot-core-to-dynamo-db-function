@@ -8,7 +8,7 @@ export class IoTCoreDelegate {
     public async processMessages(event: IoTEvent): Promise<void> {
         console.log("IoTCoreDelegate: ", "processMessages called");
 
-        let message: Message | null = this.computeMessage(event);
+        const message: Message | null = this.computeMessage(event);
 
         if (message) {
             console.info(
