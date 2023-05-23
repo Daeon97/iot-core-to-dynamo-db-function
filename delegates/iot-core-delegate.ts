@@ -8,14 +8,14 @@ export class IoTCoreDelegate {
     public async processMessages(event: IoTEvent): Promise<void> {
         console.log("IoTCoreDelegate: ", "processMessages called");
 
-        let message: Message | null = this.computeMessage(event);
+        const message: Message | null = this.computeMessage(event);
 
         if (message) {
             console.info(
                 "IoTCoreDelegate: ",
                 "processMessages: ",
                 "if message block: ",
-                `message is ${JSON.parse(JSON.stringify(message))}`
+                `message is ${JSON.stringify(message)}`
             );
 
             const dbDelegate = new DBDelegate();
@@ -40,7 +40,7 @@ export class IoTCoreDelegate {
                 "IoTCoreDelegate: ",
                 "computeMessage: ",
                 "try block: ",
-                `eventString is ${eventString}, eventObject is ${eventObject}, message is ${message}`
+                `eventString is ${eventString}, eventObject is ${eventObject}, message is ${JSON.stringify(message)}`
             );
         } catch (_) {
             message = null;
@@ -49,7 +49,7 @@ export class IoTCoreDelegate {
                 "IoTCoreDelegate: ",
                 "computeMessage: ",
                 "catch block: ",
-                `message is ${message}`
+                `message is ${JSON.stringify(message)}`
             );
         }
 

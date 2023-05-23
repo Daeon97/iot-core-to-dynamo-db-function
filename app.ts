@@ -4,6 +4,6 @@ import { IoTCoreDelegate } from './delegates/iot-core-delegate';
 export const lambdaHandler: IoTHandler = async (event) => {
     console.log("lambdaHandler triggered");
 
-    const iotCoreDelegate = new IoTCoreDelegate();
+    const iotCoreDelegate: IoTCoreDelegate = new IoTCoreDelegate();
     await iotCoreDelegate.processMessages(event);
 };
