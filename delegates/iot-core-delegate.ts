@@ -15,7 +15,7 @@ export class IoTCoreDelegate {
                 "IoTCoreDelegate: ",
                 "processMessages: ",
                 "if message block: ",
-                `message is ${JSON.parse(JSON.stringify(message))}`
+                `message is ${JSON.stringify(message)}`
             );
 
             const dbDelegate = new DBDelegate();
@@ -40,7 +40,7 @@ export class IoTCoreDelegate {
                 "IoTCoreDelegate: ",
                 "computeMessage: ",
                 "try block: ",
-                `eventString is ${eventString}, eventObject is ${eventObject}, message is ${message}`
+                `eventString is ${eventString}, eventObject is ${eventObject}, message is ${JSON.stringify(message)}`
             );
         } catch (_) {
             message = null;
@@ -49,7 +49,7 @@ export class IoTCoreDelegate {
                 "IoTCoreDelegate: ",
                 "computeMessage: ",
                 "catch block: ",
-                `message is ${message}`
+                `message is ${JSON.stringify(message)}`
             );
         }
 

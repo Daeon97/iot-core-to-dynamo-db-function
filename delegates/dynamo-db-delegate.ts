@@ -9,7 +9,7 @@ export class DynamoDBDelegate {
     public async storeDataToDatabase(message: Message): Promise<void> {
         console.log("DynamoDBDelegate: ", "storeDataToDatabase called");
 
-        const tableName: string = "NimTrack";
+        const tableName: string = "iot-core-to-dynamo-db-function-NimTrack-LO5XF2CCGVSZ";
 
         const db: DB = new DB();
 
@@ -35,8 +35,8 @@ export class DynamoDBDelegate {
                     "createTableIfNotExist: ",
                     "db.describeTable: ",
                     "if err block: ",
-                    `err is ${JSON.parse(JSON.stringify(err))}`,
-                    `data is ${JSON.parse(JSON.stringify(data))}`
+                    `err is ${JSON.stringify(err)}`,
+                    `, data is ${JSON.stringify(data)}`
                 );
 
                 await this.createTable({ tableName, db });
@@ -46,8 +46,8 @@ export class DynamoDBDelegate {
                     "createTableIfNotExist: ",
                     "db.describeTable: ",
                     "else block: ",
-                    `err is ${JSON.parse(JSON.stringify(err))}`,
-                    `data is ${JSON.parse(JSON.stringify(data))}`
+                    `err is ${JSON.stringify(err)}`,
+                    `, data is ${JSON.stringify(data)}`
                 );
             }
         }).promise();
@@ -93,32 +93,45 @@ export class DynamoDBDelegate {
     private async putOrUpdateItem({ tableName, db, message }: { tableName: string; db: DB; message: Message }): Promise<void> {
         console.log("DynamoDBDelegate: ", "putOrUpdateItem called");
 
-        const getItem: PromiseResult<DB.GetItemOutput, AWSError> = await db.getItem({
-            TableName: tableName,
-            Key: {
-                "id": {
-                    N: `${message.nodeId}`
+        try {
+            const getItem: PromiseResult<DB.GetItemOutput, AWSError> = await db.getItem({
+                TableName: tableName,
+                Key: {
+                    "id": {
+                        N: `${message.nodeId}`
+                    }
                 }
+            }).promise();
+
+            if (getItem.Item) {
+                console.info(
+                    "DynamoDBDelegate: ",
+                    "putOrUpdateItem: ",
+                    "getItem.Item: ",
+                    "try block: ",
+                    "if block: ",
+                    `item is ${JSON.stringify(getItem.Item)}`
+                );
+
+                await this.updateItem({ tableName, db, message });
+            } else {
+                console.info(
+                    "DynamoDBDelegate: ",
+                    "putOrUpdateItem: ",
+                    "getItem.Item: ",
+                    "try block: ",
+                    "else block: ",
+                    `item is ${JSON.stringify(getItem.Item)}`
+                );
+
+                await this.putItem({ tableName, db, message });
             }
-        }).promise();
-
-        if (getItem.Item) {
+        } catch (err) {
             console.info(
                 "DynamoDBDelegate: ",
                 "putOrUpdateItem: ",
-                "getItem.Item: ",
-                "if block: ",
-                `item is ${JSON.parse(JSON.stringify(getItem.Item))}`
-            );
-
-            await this.updateItem({ tableName, db, message });
-        } else {
-            console.info(
-                "DynamoDBDelegate: ",
-                "putOrUpdateItem: ",
-                "getItem.Item: ",
-                "else block: ",
-                `item is ${JSON.parse(JSON.stringify(getItem.Item))}`
+                "catch block: ",
+                `error is ${JSON.stringify(err)}`
             );
 
             await this.putItem({ tableName, db, message });
@@ -142,34 +155,7 @@ export class DynamoDBDelegate {
             },
             ExpressionAttributeValues: {
                 ":d": {
-                    M: {
-                        "timestamp": {
-                            N: `${this.computeUnixTimestamp()}`
-                        },
-                        "coordinates": {
-                            M: {
-                                "hash": {
-                                    S: `${this.computeGeohash({
-                                        latitude: message.latitude,
-                                        longitude: message.longitude
-                                    })}`
-                                },
-                                "lat_lng": {
-                                    L: [
-                                        {
-                                            N: `${message.latitude}`,
-                                        },
-                                        {
-                                            N: `${message.longitude}`
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        "battery_level": {
-                            N: `${message.batteryLevel}`
-                        }
-                    }
+                    ...this.computeDataItem({ message })
                 }
             },
             UpdateExpression: "ADD #d = :d"
@@ -186,44 +172,73 @@ export class DynamoDBDelegate {
                     N: `${message.nodeId}`
                 },
                 "name": {
-                    S: ""
+                    S: `${message.nodeId}`
                 },
                 "data": {
                     L: [
                         {
-                            M: {
-                                "timestamp": {
-                                    N: `${this.computeUnixTimestamp()}`
-                                },
-                                "coordinates": {
-                                    M: {
-                                        "hash": {
-                                            S: `${this.computeGeohash({
-                                                latitude: message.latitude,
-                                                longitude: message.longitude
-                                            })}`
-                                        },
-                                        "lat_lng": {
-                                            L: [
-                                                {
-                                                    N: `${message.latitude}`,
-                                                },
-                                                {
-                                                    N: `${message.longitude}`
-                                                }
-                                            ]
-                                        }
-                                    }
-                                },
-                                "battery_level": {
-                                    N: `${message.batteryLevel}`
-                                }
-                            }
+                            ...this.computeDataItem({ message })
                         }
                     ]
                 }
             }
         }).promise();
+    }
+
+    private computeDataItem({ message }: { message: Message }): {
+        M: {
+            timestamp: {
+                N: string;
+            };
+            coordinates: {
+                M: {
+                    hash: {
+                        S: string;
+                    };
+                    lat_lng: {
+                        L: {
+                            N: string;
+                        }[];
+                    };
+                };
+            };
+            battery_level: {
+                N: string;
+            };
+        };
+    } {
+        console.log("DynamoDBDelegate: ", "computeDataItem called");
+
+        return {
+            M: {
+                "timestamp": {
+                    N: `${this.computeUnixTimestamp()}`
+                },
+                "coordinates": {
+                    M: {
+                        "hash": {
+                            S: `${this.computeGeohash({
+                                latitude: message.latitude,
+                                longitude: message.longitude
+                            })}`
+                        },
+                        "lat_lng": {
+                            L: [
+                                {
+                                    N: `${message.latitude}`,
+                                },
+                                {
+                                    N: `${message.longitude}`
+                                }
+                            ]
+                        }
+                    }
+                },
+                "battery_level": {
+                    N: `${message.batteryLevel}`
+                }
+            }
+        };
     }
 
     private computeGeohash({ latitude, longitude }: { latitude: number, longitude: number }): string {
@@ -234,8 +249,8 @@ export class DynamoDBDelegate {
             "DynamoDBDelegate: ",
             "computeGeohash: ",
             `provided latitude is ${latitude}`,
-            `provided longitude is ${longitude}`,
-            `computed geohash is ${hash}`
+            `, provided longitude is ${longitude}`,
+            `, computed geohash is ${hash}`
         );
 
         return hash;
@@ -250,8 +265,8 @@ export class DynamoDBDelegate {
         console.info(
             "DynamoDBDelegate: ",
             "computeUnixTimestamp: ",
-            `date is: in plain: ${date}, in JSON ${JSON.parse(JSON.stringify(date))}`,
-            `unix timestamp is ${unixTimestamp}`
+            `date is ${date}`,
+            `, unix timestamp is ${unixTimestamp}`
         );
 
         return unixTimestamp;
