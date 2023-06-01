@@ -7,7 +7,7 @@ Globals:
     Runtime: nodejs16.x
     Timeout: 60
     Layers:
-      - !Ref GeohashingLayer
+      - arn:aws:lambda:eu-north-1:580510132728:layer:GeohashingLayer:7
 
 Resources:
   IoTCoreToDynamoDbFunction:
@@ -36,15 +36,6 @@ Resources:
         External:
           - "aws-sdk"
           - "geohashing"
-  GeohashingLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: GeohashingLayer
-      Description: Geohashing dependency layer for iot-core-to-dynamo-db-function
-      LicenseInfo: "MIT"
-      ContentUri: ./geohashing-layer
-      CompatibleRuntimes:
-        - nodejs16.x
 
   NimTrack:
     Type: AWS::DynamoDB::Table
