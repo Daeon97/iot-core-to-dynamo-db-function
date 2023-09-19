@@ -137,7 +137,7 @@ export class DynamoDBDelegate {
 
     private computeUnixTimestamp(): number {
         const date: Date = new Date();
-        const unixTimestamp: number = Math.floor(date.getTime() / 1000);
+        const unixTimestamp: number = date.getTime();
 
         return unixTimestamp;
     }
