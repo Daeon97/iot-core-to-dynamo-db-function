@@ -46,7 +46,7 @@ export class DynamoDBDelegate {
                 items.push(item);
             });
 
-            if (!databaseItems || databaseItems.length === 0 || ((items.at(0)?.Timestamp - this.unixTimestamp) > 5 * 60 * 1000)) {
+            if (!databaseItems || databaseItems.length === 0 || (this.unixTimestamp > items.at(0)?.Timestamp && ((this.unixTimestamp - items.at(0)?.Timestamp) > 5 * 60 * 1000))) {
                 await this.putItem({ tableName, db });
             }
         }
