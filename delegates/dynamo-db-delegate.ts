@@ -5,140 +5,108 @@ import { encodeBase32 } from 'geohashing';
 import { Message } from '../models/message';
 
 export class DynamoDBDelegate {
-    constructor() { }
+    constructor(private readonly message: Message) { }
 
-    public async storeDataToDatabase(message: Message): Promise<void> {
-        const tableName: string = "iot-core-to-dynamo-db-function-NimTrack-1880A47TAKPHB";
+    public async storeDataToDatabase(): Promise<void> {
+        const tableName: string = "iot-core-to-dynamo-db-function-for-efotainer-Efotainer-1VEDNASSC1ZTF";
 
         const db: DB = new DB();
 
-        await this.putOrUpdateItem({ tableName, db, message });
+        await this.maybePutItem({ tableName, db });
 
         return;
     }
 
-    private async putOrUpdateItem({ tableName, db, message }: { tableName: string; db: DB; message: Message }): Promise<void> {
-        const getItem: PromiseResult<DB.GetItemOutput, AWSError> = await db.getItem({
+    private async maybePutItem({ tableName, db }: { tableName: string; db: DB }): Promise<void | PromiseResult<DB.PutItemOutput, AWSError>> {
+        const getLastItem: PromiseResult<DB.QueryOutput, AWSError> = await db.query({
             TableName: tableName,
-            Key: {
-                "id": {
-                    N: `${message.nodeId}`
+            ConsistentRead: true,
+            ScanIndexForward: false,
+            ExpressionAttributeNames: {
+                "#N": "Name",
+                "#T": "Timestamp"
+            },
+            ExpressionAttributeValues: {
+                ":n": {
+                    "S": "Efotainer"
                 }
-            }
+            },
+            ProjectionExpression: "#N, #T",
+            KeyConditionExpression: "#N = :n",
+            Limit: 1
         }).promise();
 
-        if (getItem.$response.data && getItem.Item) {
-            await this.updateItem({ tableName, db, attributeMap: getItem.Item, message });
+        if (getLastItem.$response.data) {
+            const databaseItems: DB.ItemList | undefined = getLastItem.Items;
 
-        } else {
-            await this.putItem({ tableName, db, message });
+            let items: { [key: string]: any }[] = [];
+
+            databaseItems?.forEach(attributeMap => {
+                const item: { [key: string]: any } = Converter.unmarshall(attributeMap);
+                items.push(item);
+            });
+
+            if (!databaseItems || databaseItems.length === 0 || ((items.at(0)?.Timestamp - this.unixTimestamp) > 5 * 60 * 1000)) {
+                await this.putItem({ tableName, db });
+            }
         }
 
         return;
     }
 
-    private updateItem({ tableName, db, attributeMap, message }: { tableName: string; db: DB; attributeMap: DB.AttributeMap, message: Message }): Promise<PromiseResult<DB.UpdateItemOutput, AWSError>> {
-        const item: { [key: string]: any } = Converter.unmarshall(attributeMap);
-        const data: [{ [key: string]: any }] = item.data;
-        const nextIndex: number = data.length;
-
-        return db.updateItem({
-            TableName: tableName,
-            Key: {
-                "id": {
-                    N: `${message.nodeId}`
-                }
-            },
-            ExpressionAttributeNames: {
-                "#d": "data"
-            },
-            ExpressionAttributeValues: {
-                ":d": this.computeDataItem({ message })
-            },
-            UpdateExpression: `SET #d[${nextIndex}] = :d`
-        }).promise();
-    }
-
-    private putItem({ tableName, db, message }: { tableName: string; db: DB; message: Message }): Promise<PromiseResult<DB.PutItemOutput, AWSError>> {
+    private async putItem({ tableName, db }: { tableName: string; db: DB }): Promise<PromiseResult<DB.PutItemOutput, AWSError>> {
         return db.putItem({
             TableName: tableName,
             Item: {
-                "id": {
-                    N: `${message.nodeId}`
+                "Name": {
+                    S: "Efotainer"
                 },
-                "data": {
-                    L: [
-                        this.computeDataItem({ message })
-                    ]
-                }
-            }
-        }).promise();
-    }
-
-    private computeDataItem({ message }: { message: Message }): {
-        M: {
-            timestamp: {
-                N: string;
-            };
-            coordinates: {
-                M: {
-                    hash: {
-                        S: string;
-                    };
-                    lat_lng: {
-                        L: {
-                            N: string;
-                        }[];
-                    };
-                };
-            };
-            battery_level: {
-                N: string;
-            };
-        };
-    } {
-        return {
-            M: {
-                "timestamp": {
-                    N: `${this.computeUnixTimestamp()}`
+                "Timestamp": {
+                    N: `${this.unixTimestamp}`
                 },
-                "coordinates": {
+                "Coordinates": {
                     M: {
-                        "hash": {
+                        "Hash": {
                             S: `${this.computeGeohash({
-                                latitude: message.latitude,
-                                longitude: message.longitude
+                                latitude: this.message.latitude,
+                                longitude: this.message.longitude
                             })}`
                         },
-                        "lat_lng": {
+                        "Position": {
                             L: [
                                 {
-                                    N: `${message.latitude}`,
+                                    N: `${this.message.latitude}`,
                                 },
                                 {
-                                    N: `${message.longitude}`
+                                    N: `${this.message.longitude}`
                                 }
                             ]
                         }
                     }
                 },
-                "battery_level": {
-                    N: `${message.batteryLevel}`
+                "Temperature": {
+                    N: `${this.message.temperature}`
+                },
+                "Humidity": {
+                    N: `${this.message.humidity}`
+                },
+                "Battery": {
+                    N: `${this.message.battery}`
                 }
             }
-        };
+        }).promise();
     }
 
     private computeGeohash({ latitude, longitude }: { latitude: number, longitude: number }): string {
         const hash: string = encodeBase32(latitude, longitude, 9);
-        
+
         return hash;
     }
 
-    private computeUnixTimestamp(): number {
+    private get unixTimestamp(): number {
         const date: Date = new Date();
-        const unixTimestamp: number = date.getTime();
+        const timestamp: number = date.getTime();
 
-        return unixTimestamp;
+        return timestamp;
     }
 }

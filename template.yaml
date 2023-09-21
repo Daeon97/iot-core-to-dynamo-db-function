@@ -10,20 +10,20 @@ Globals:
       - arn:aws:lambda:eu-north-1:580510132728:layer:GeohashingLayer:7
 
 Resources:
-  IoTCoreToDynamoDbFunction:
+  IoTCoreToDynamoDbFunctionForEfotainer:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: IoTCoreToDynamoDb
+      FunctionName: IoTCoreToDynamoDbForEfotainer
       CodeUri: .
       Handler: app.lambdaHandler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref NimTrack
+            TableName: !Ref Efotainer
       Events:
-        IoTCoreToDynamoDb:
+        IoTCoreToDynamoDbForEfotainer:
           Type: IoTRule
           Properties:
-            Sql: "SELECT * FROM 'esp32/josiah1'"
+            Sql: "SELECT * FROM 'efotainer/pub'"
             AwsIotSqlVersion: "2016-03-23"
     Metadata:
       BuildMethod: esbuild
@@ -37,13 +37,17 @@ Resources:
           - "aws-sdk"
           - "geohashing"
 
-  NimTrack:
+  Efotainer:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: "id"
+        - AttributeName: "Name"
+          AttributeType: "S"
+        - AttributeName: "Timestamp"
           AttributeType: "N"
       KeySchema:
-        - AttributeName: "id"
+        - AttributeName: "Name"
           KeyType: "HASH"
+        - AttributeName: "Timestamp"
+          KeyType: "RANGE"
       BillingMode: "PAY_PER_REQUEST"

@@ -1,17 +1,19 @@
 export class Message {
     constructor(
-        public nodeId: number,
         public latitude: number,
         public longitude: number,
-        public batteryLevel: number,
+        public temperature: number,
+        public humidity: number,
+        public battery: number,
     ) { }
 
     static fromObject(object: any): Message {
         return new Message(
-            object.id,
             object.lat,
-            object.lng,
-            object.battery_level,
+            object.long,
+            object.temperature,
+            object.humidity,
+            object.battery,
         );
     }
 }

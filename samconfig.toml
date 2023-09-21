@@ -1,8 +1,8 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "iot-core-to-dynamo-db-function"
+stack_name = "iot-core-to-dynamo-db-function-for-efotainer"
 resolve_s3 = true
-s3_prefix = "iot-core-to-dynamo-db-function"
+s3_prefix = "iot-core-to-dynamo-db-function-for-efotainer"
 region = "eu-north-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"

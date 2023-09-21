@@ -1,6 +1,7 @@
 {
-    "id": 1,
     "lat": -44.87894,
-    "lng": 85.23092,
-    "battery_level": 87
+    "long": 85.23092,
+    "temperature": 72,
+    "humidity": 40,
+    "battery": 87
 }
