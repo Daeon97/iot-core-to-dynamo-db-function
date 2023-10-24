@@ -16,43 +16,6 @@ export class DynamoDBDelegate {
         return;
     }
 
-    // private async maybePutItem({ tableName, db }: { tableName: string; db: DB }): Promise<void | PromiseResult<DB.PutItemOutput, AWSError>> {
-    //     const getLastItem: PromiseResult<DB.QueryOutput, AWSError> = await db.query({
-    //         TableName: tableName,
-    //         ConsistentRead: true,
-    //         ScanIndexForward: false,
-    //         ExpressionAttributeNames: {
-    //             "#N": "Name",
-    //             "#T": "Timestamp"
-    //         },
-    //         ExpressionAttributeValues: {
-    //             ":n": {
-    //                 "S": "Efotainer"
-    //             }
-    //         },
-    //         ProjectionExpression: "#N, #T",
-    //         KeyConditionExpression: "#N = :n",
-    //         Limit: 1
-    //     }).promise();
-
-    //     if (getLastItem.$response.data) {
-    //         const databaseItems: DB.ItemList | undefined = getLastItem.Items;
-
-    //         let items: { [key: string]: any }[] = [];
-
-    //         databaseItems?.forEach(attributeMap => {
-    //             const item: { [key: string]: any } = Converter.unmarshall(attributeMap);
-    //             items.push(item);
-    //         });
-
-    //         if (!databaseItems || databaseItems.length === 0 || (this.unixTimestamp > items.at(0)?.Timestamp && ((this.unixTimestamp - items.at(0)?.Timestamp) > 5 * 60 * 1000))) {
-    //             await this.putItem({ tableName, db });
-    //         }
-    //     }
-
-    //     return;
-    // }
-
     private async putItem({ tableName, db }: { tableName: string; db: DB }): Promise<PromiseResult<DB.PutItemOutput, AWSError>> {
         const currentEnergyKwh: number = await this.computeCurrentEnergyKwh({ tableName, db });
 
