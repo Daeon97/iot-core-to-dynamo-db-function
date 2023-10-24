@@ -1,7 +1,6 @@
 {
-    "lat": -44.87894,
-    "long": 85.23092,
-    "temperature": 72,
-    "humidity": 40,
-    "battery": 87
+    "device_id": "0001",
+    "cumm_energy_kwh": 15,
+    "box_status": "opened",
+    "timestamp": 1695304208857
 }

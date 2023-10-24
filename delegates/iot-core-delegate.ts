@@ -8,7 +8,7 @@ export class IoTCoreDelegate {
     public async processMessages(): Promise<void> {
         const message: Message | null = this.computeMessage();
 
-        if (message && message.latitude !== 0 && message.longitude !== 0) {
+        if (message) {
             const dbDelegate: DBDelegate = new DBDelegate(message);
             await dbDelegate.storeDataToDatabase();
         }
@@ -17,7 +17,7 @@ export class IoTCoreDelegate {
     }
 
     private computeMessage(): Message | null {
-        let message: Message | null = null;
+        let message: Message | null;
 
         try {
             const eventString: string = JSON.stringify(this.event);

@@ -6,24 +6,22 @@ Globals:
   Function:
     Runtime: nodejs16.x
     Timeout: 60
-    Layers:
-      - arn:aws:lambda:eu-north-1:580510132728:layer:GeohashingLayer:7
 
 Resources:
-  IoTCoreToDynamoDbFunctionForEfotainer:
+  IoTCoreToDynamoDbFunctionForVectarCleanEnergy:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: IoTCoreToDynamoDbForEfotainer
+      FunctionName: IoTCoreToDynamoDbForVectarCleanEnergy
       CodeUri: .
       Handler: app.lambdaHandler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref Efotainer
+            TableName: !Ref VectarCleanEnergy
       Events:
-        IoTCoreToDynamoDbForEfotainer:
+        IoTCoreToDynamoDbForVectarCleanEnergy:
           Type: IoTRule
           Properties:
-            Sql: "SELECT * FROM 'efotainer/pub'"
+            Sql: "SELECT * FROM 'ecoWise/0001/pub'"
             AwsIotSqlVersion: "2016-03-23"
     Metadata:
       BuildMethod: esbuild
@@ -35,18 +33,17 @@ Resources:
           - app.ts
         External:
           - "aws-sdk"
-          - "geohashing"
 
-  Efotainer:
+  VectarCleanEnergy:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: "Name"
+        - AttributeName: "DeviceId"
           AttributeType: "S"
         - AttributeName: "Timestamp"
           AttributeType: "N"
       KeySchema:
-        - AttributeName: "Name"
+        - AttributeName: "DeviceId"
           KeyType: "HASH"
         - AttributeName: "Timestamp"
           KeyType: "RANGE"

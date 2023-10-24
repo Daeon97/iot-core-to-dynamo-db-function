@@ -1,19 +1,15 @@
 export class Message {
     constructor(
-        public latitude: number,
-        public longitude: number,
-        public temperature: number,
-        public humidity: number,
-        public battery: number,
+        public deviceId: string,
+        public cummulativeEnergyKwh: number,
+        public boxStatus: string,
     ) { }
 
     static fromObject(object: any): Message {
         return new Message(
-            object.lat,
-            object.long,
-            object.temperature,
-            object.humidity,
-            object.battery,
+            object.device_id,
+            object.cumm_energy_kwh,
+            object.box_status,
         );
     }
 }
