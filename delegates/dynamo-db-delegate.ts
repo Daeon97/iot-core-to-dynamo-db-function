@@ -50,14 +50,14 @@ export class DynamoDBDelegate {
             ScanIndexForward: false,
             ExpressionAttributeNames: {
                 "#D": "DeviceId",
-                "#T": "Timestamp"
+                "#C": "CummulativeEnergyKwh"
             },
             ExpressionAttributeValues: {
                 ":d": {
                     "S": "0001"
                 }
             },
-            ProjectionExpression: "#D, #T",
+            ProjectionExpression: "#D, #C",
             KeyConditionExpression: "#D = :d",
             Limit: 1
         }).promise();
@@ -70,7 +70,7 @@ export class DynamoDBDelegate {
 
                 currentEnergyKwh = this.message.cummulativeEnergyKwh - (lastItem.CummulativeEnergyKwh as number);
             } else {
-                currentEnergyKwh += this.message.cummulativeEnergyKwh;
+                currentEnergyKwh = this.message.cummulativeEnergyKwh;
             }
         }
 
