@@ -34,8 +34,14 @@ export class DynamoDBDelegate {
                 "CummulativeEnergyKwh": {
                     N: `${this.message.cummulativeEnergyKwh}`
                 },
+                "Latitude": {
+                    N: `${this.message.latitude}`
+                },
+                "Longitude": {
+                    N: `${this.message.longitude}`
+                },
                 "Timestamp": {
-                    N: `${this.unixTimestamp}`
+                    N: `${this.message.timestamp}`
                 }
             }
         }).promise();
@@ -68,19 +74,14 @@ export class DynamoDBDelegate {
             if (databaseItems && databaseItems.length > 0) {
                 const lastItem: { [key: string]: any } = Converter.unmarshall(databaseItems.at(0)!);
 
-                currentEnergyKwh = this.message.cummulativeEnergyKwh - (lastItem.CummulativeEnergyKwh as number);
+                this.message.cummulativeEnergyKwh === 0
+                    ? currentEnergyKwh = this.message.cummulativeEnergyKwh
+                    : currentEnergyKwh = this.message.cummulativeEnergyKwh - (lastItem.CummulativeEnergyKwh as number);
             } else {
                 currentEnergyKwh = this.message.cummulativeEnergyKwh;
             }
         }
 
         return currentEnergyKwh;
-    }
-
-    private get unixTimestamp(): number {
-        const date: Date = new Date();
-        const timestamp: number = date.getTime();
-
-        return timestamp;
     }
 }

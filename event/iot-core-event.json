@@ -2,5 +2,7 @@
     "device_id": "0001",
     "cumm_energy_kwh": 15,
     "box_status": "opened",
+    "lat": -27.8972,
+    "lng": 33.7654,
     "timestamp": 1695304208857
 }
